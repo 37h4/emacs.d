@@ -651,6 +651,7 @@
   (setq org-adapt-indentation nil)
   (setq org-directory "~/University")
   (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-capture-bookmark nil)
   (setq org-preview-latex-image-directory (expand-file-name "ltximg/" user-emacs-directory))
 
   ;; Use dvisvgm for high-quality SVG previews
@@ -711,7 +712,37 @@
           (800 1000 1200 1400 1600 1800 2000)
           " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
   (setq org-agenda-current-time-string
-        "◄ NOW ─────────────────────────────────────────────────"))
+        "◄ NOW ─────────────────────────────────────────────────")
+
+  ;; Force Org Agenda to the right
+  (setq org-agenda-window-setup 'current-window)
+  (add-to-list 'display-buffer-alist
+               '("\\*Org Agenda\\*"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 0)
+                 (window-width . 0.4)
+                 (preserve-size . (t . nil))
+                 (window-parameters . ((no-delete-other-windows . t)))))
+
+  (defun my/org-capture-university-target ()
+    "Return the current buffer's file if it's a University file, otherwise default notes file."
+    (let ((file (buffer-file-name (org-capture-get :original-buffer))))
+      (if (and file (string-match-p "University" file))
+          file
+        org-default-notes-file)))
+
+  ;; Capture templates for University tasks
+  (setq org-capture-templates
+        '(("u" "University")
+          ("uh" "Homework" entry
+           (file+headline my/org-capture-university-target "Lectures")
+           "*** TODO %^{Class Code|%(file-name-base (buffer-file-name (org-capture-get :original-buffer)))} - %^{Assignment Name}\nDEADLINE: %^t\n:PROPERTIES:\n:TYPE: %^{Type|Homework|Quiz|Test|Group|Presentation}\n:END:\n\n[[file:Homeworks/%^{File Name}.pdf][ Open Homework]]\n%?"
+           :empty-lines 1)
+          ("ul" "Lecture" entry
+           (file+headline my/org-capture-university-target "Lectures")
+           "** Lecture %^{Lecture Number} - %^{Topic}\n\n[[file:Slides/%^{File Name}.pdf][  Lecture Slides]]\n\n%?"
+           :empty-lines 1))))
 
 ;; Automatically continue lists with when pressing RET
 (use-package org-autolist
@@ -839,6 +870,7 @@
   "b"   '(:ignore t :which-key "Buffer")
   "bb"  '(consult-buffer :which-key "Switch Buffer")
   "bm"  '(consult-bookmark :which-key "Jump to Bookmark")
+  "bd"  '(bookmark-delete :which-key "Delete Bookmark")
   "bk"  '(kill-current-buffer :which-key "Kill Buffer")
   "bn"  '(next-buffer :which-key "Next Buffer")
   "bp"  '(previous-buffer :which-key "Prev Buffer")
