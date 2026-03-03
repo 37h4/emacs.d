@@ -199,7 +199,8 @@
 
 ;; Indent guides
 (use-package highlight-indent-guides
-  :hook (prog-mode . highlight-indent-guides-mode)
+  :hook ((prog-mode . highlight-indent-guides-mode)
+         (prog-mode . (lambda () (setq-local line-spacing 0.18)))) ; increase line height
   :config
   (setq highlight-indent-guides-method 'character)
   (setq highlight-indent-guides-character ?│)
@@ -563,7 +564,31 @@
   :config
   (setq-default gptel-model 'gpt-5-mini)
   (setq-default gptel-backend
-                (gptel-make-gh-copilot "Copilot")))
+                (gptel-make-gh-copilot "Copilot"))
+  (add-to-list 'gptel-directives
+               '(notes . "You are an Org-mode note-autocomplete assistant for Emacs. When given an org buffer context and the current heading, produce only the org-mode text that should be inserted at the cursor (no explanation or meta commentary). Follow these rules:
+
+- Match the user's existing voice, tone, sentence length, and structure by analyzing surrounding headings and previous notes in the buffer; mimic formatting choices (bullet style, checkbox style, timestamp style, code-block style, TODO keywords, tags, LaTeX code).
+- Keep output valid org-mode syntax (lists, checkboxes [ ] or [-], property drawers, timestamps <...>, SCHEDULED/DEADLINE lines, src blocks).
+- DO NOT generate any Org-mode headings (lines starting with asterisks like *, **, ***). Only produce the body content that should go under the current heading.
+- When writing math, use inline LaTeX $...$ instead of the unicode math characters, and math blocks $$ ... $$ for equations, definitions, etc.
+- When writing code, use the proper emacs org mode code block structe, and include the language next to #+BEGIN_SRC for proper syntax highlighting.
+- Do not change existing text outside what you output.
+- Keep content tightly focused on the meaning/intent of the current heading and its parent/project context. If the heading is a TODO or action, include a clear next action line and optional small checklist if appropriate.
+- Prefer concise, actionable lines. Default to producing 3–12 lines unless the context shows longer notes are typical.
+- When facts are missing, use inline placeholders like <TODO: specify>, <DATE?>, or <who?> rather than inventing specifics.
+- Output must be plain org text only (what to insert). Never add surrounding explanation, JSON wrappers, or commentary.")))
+
+;; GitHub Copilot (requires nodejs to be installed on your system)
+(use-package copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . copilot-accept-completion)
+              ("TAB" . copilot-accept-completion)
+              ("C-TAB" . copilot-accept-completion-by-word)
+              ("C-<tab>" . copilot-accept-completion-by-word))
+  :config
+  (setq copilot-indent-offset-alist '((prog-mode . 4) (ruby-mode . 2) (emacs-lisp-mode . 2))))
 
 ;; Language server support
 (use-package lsp-mode
@@ -797,8 +822,6 @@
   :hook ((org-mode . turn-on-org-cdlatex)
          (LaTeX-mode . turn-on-cdlatex))
   :config
-  ;; Disable yasnippet in org-mode to avoid conflicts with cdlatex TAB binding
-  (add-hook 'org-mode-hook (lambda () (yas-minor-mode -1)))
   (add-to-list 'cdlatex-command-alist
                '("lim" "Limit n to infinity"
                  "\\lim\\limits_{n \\to \\infty} ?"
@@ -816,7 +839,12 @@
 (add-hook 'org-mode-hook (lambda ()
                            (display-line-numbers-mode -1)
                            (setq-local global-hl-line-mode nil)
-                           (hl-line-mode -1)))
+                           (hl-line-mode -1)
+                           (setq-local line-spacing 0.18))) ; increase line height
+
+;; Super secret project
+;; (add-to-list 'load-path "/Users/glocean/Projects/org-typst-preview")
+;; (require 'org-typst-preview)
 ;; -----------------------------------------------------------------------------
 ;; KEYBINDINGS
 ;; -----------------------------------------------------------------------------
