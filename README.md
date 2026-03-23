@@ -1,4 +1,4 @@
-# 🪷 Glocean's .emacs.d
+# 🪷 Glocean's .emacs.d -- EVERFOREST ADAPTED BY 37H4
 
 A minimal, high performance emacs configuration with full LSP support and org mode
 
