@@ -159,10 +159,14 @@
 (use-package autothemer)
 
 ;; Rose Pine theme
-(use-package rose-pine-theme
-  :straight (rose-pine-theme :type git :host github :repo "konrad1977/pinerose-emacs")
-  :config
-  (load-theme 'rose-pine t))
+;; (use-package rose-pine-theme
+;;   :straight (rose-pine-theme :type git :host github :repo "konrad1977/pinerose-emacs")
+;;   :config
+;;   (load-theme 'rose-pine t))
+
+;; Everforest Dark Hard Theme
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
+(load-theme 'everforest-dark-hard t)
 
 ;; Nerd icons
 (use-package nerd-icons)
@@ -181,10 +185,10 @@
         (with-selected-window space-win
           (dashboard-insert-startupify-lists t)))))
   (dashboard-setup-startup-hook)
-  (add-hook 'dashboard-mode-hook (lambda () 
+  (add-hook 'dashboard-mode-hook (lambda ()
                                    (setq-local global-hl-line-mode nil)
                                    (hl-line-mode -1)))
-  (setq dashboard-startup-banner (expand-file-name "assets/xemacs_color_pine.svg" user-emacs-directory)
+  (setq dashboard-startup-banner (expand-file-name "assets/xemacs_color_forest1.svg" user-emacs-directory)
         dashboard-banner-logo-title "Welcome to Emacs!"
         dashboard-items '((recents   . 5)
                           (projects  . 5)
@@ -368,7 +372,7 @@
   :config
   (setq vterm-toggle-fullscreen-p nil)
   (add-to-list 'display-buffer-alist
-               '((lambda (buffer-or-name _) 
+               '((lambda (buffer-or-name _)
                    (let ((buffer (get-buffer buffer-or-name)))
                      (with-current-buffer buffer
                        (or (equal major-mode 'vterm-mode)
@@ -403,7 +407,7 @@
                         (pop-to-buffer "*quickrun-vterm*")
                       (vterm "*quickrun-vterm*"))))
       (with-current-buffer buf
-        (dolist (cmd (if (listp exec) exec (list exec))) 
+        (dolist (cmd (if (listp exec) exec (list exec)))
           (vterm-send-string cmd)
           (vterm-send-return)))))
 
@@ -496,7 +500,7 @@
   (add-to-list 'erc-modules 'spelling)
   (add-to-list 'erc-modules 'scrolltobottom)
   (erc-update-modules)
-  
+
   (evil-set-initial-state 'erc-mode 'emacs)
 
   (add-hook 'erc-mode-hook (lambda ()
@@ -681,13 +685,13 @@
 
   ;; Use dvisvgm for high-quality SVG previews
   (setq org-preview-latex-default-process 'dvisvgm)
-  
+
   ;; This function updates the agenda list by finding all .org files in Current
   (defun my/update-agenda-files ()
     (interactive)
     (when (file-directory-p "~/University/Current")
       (setq org-agenda-files (directory-files-recursively "~/University/Current" "\\.org$"))))
-  
+
   ;; Update agenda files on startup
   (my/update-agenda-files)
 
